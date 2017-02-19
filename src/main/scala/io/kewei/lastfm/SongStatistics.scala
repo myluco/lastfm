@@ -14,6 +14,12 @@ class SongStatistics extends Serializable{
   val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
   // Solution A. Create a list of user IDs, along with the number of distinct songs each user has played.
+  // Alternative solution:
+  // 1. If the file is too big to fit into memory and is stored in HDFS, we can also user Hadoop MapReduce.
+  // 2. If the file can fit into memory, we can use a HashMap of Sets while iterating through each row of the file.
+  // The HashMap map's userId to the Set of distinct songs the user has listened. Then we count the size of the Set.
+  // Time complexity: O(n) where n is the number of lines in file.
+  // Space complexity: O(n)
   def countSongsByUser(fileContents: RDD[String]): RDD[(String, Int)] = {
     fileContents.map { line =>
       val row = line.split("\t")
@@ -28,6 +34,13 @@ class SongStatistics extends Serializable{
   }
 
   // Solution B. Create a list of the 100 most popular songs (artist and title), with number of times each was played.
+  // Alternative solution:
+  // 1. If the file is too big to fit into memory and is stored in HDFS, we can also user Hadoop MapReduce.
+  // 2. If the file can fit into memory, we can use a HashMap that maps song to count while iterating through each row
+  // of the file. Then we iterate through the map and put the (count, song) tuple in PriorityQueue(max heap), which compares
+  // its items by count of the tuple(count, song), finally we take the first 100 items from the PriorityQueue.
+  // Time complexity : O(n*ln(n)), where n is the number of line in file
+  // Space complexity : O(n)
   def topSongs(fileContents: RDD[String], top: Int = 100): Array[(String, String, Int)] = {
     fileContents.map { line =>
       val row = line.split("\t")
